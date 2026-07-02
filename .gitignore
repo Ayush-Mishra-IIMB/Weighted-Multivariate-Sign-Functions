@@ -1,0 +1,5 @@
+R/Archive/
+Experimental/
+.Rhistory
+.RData
+*.log
