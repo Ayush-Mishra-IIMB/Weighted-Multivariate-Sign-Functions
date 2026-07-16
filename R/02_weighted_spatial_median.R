@@ -32,7 +32,7 @@
 # =============================================================================
 
 # Source the weight functions module
-# source("01_weight_functions.R")   # uncomment if running standalone
+ source("01_weight_functions.R")   # uncomment if running standalone
 
 
 # =============================================================================

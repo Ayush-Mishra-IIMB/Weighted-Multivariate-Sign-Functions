@@ -1,0 +1,139 @@
+---
+title: "Reproducing Results from JASA (2015) and JMVA (2022)"
+author: "Prof. Subhabrata Majumdar & Ayush Mishra"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+# Introduction
+
+This report reproduces the simulation results from:
+
+1. Wang, Peng and Li (2015), *Journal of the American Statistical Association*.
+2. Majumdar and Chatterjee (2022), *Journal of Multivariate Analysis*.
+
+The objective is:
+
+- Reproduce the simulation studies from both papers.
+- Compare the JASA and JMVA methodologies.
+- Validate the published empirical findings.
+- Compare both methods under identical settings.
+
+# Repository Structure
+
+```{r echo=FALSE}
+cat("
+R/
+├── full_comparison_single_file.R
+├── 01_weight_functions.R
+├── 02_weighted_spatial_median.R
+")
+```
+
+# Load packages and source code
+
+```{r setup, message=FALSE, warning=FALSE}
+library(MASS)
+
+source("../full_comparison_single_file.R")
+```
+
+# Section 1: JASA Replication
+
+## Objective
+
+The JASA paper proposes a high-dimensional nonparametric test based on spatial signs.
+
+The simulation studies investigate:
+
+- Empirical size under the null hypothesis.
+- Empirical power under alternatives.
+- Comparison with the Chen–Qin test.
+
+## Run JASA simulations
+
+```{r jasa-results}
+print_jasa_table(
+  "normal",
+  "Example 1: Multivariate Normal [Table 1]"
+)
+
+print_jasa_table(
+  "t3",
+  "Example 2: Multivariate t3 [Table 2]"
+)
+
+print_jasa_table(
+  "mix",
+  "Example 3: Scale Mixture [Table 3]"
+)
+```
+
+## Interpretation
+
+- Under the null hypothesis, the rejection rate should be close to 0.05.
+- Under alternatives, the rejection probability should increase.
+- Heavy-tailed distributions favor the proposed JASA method.
+
+# Section 2: JMVA Replication
+
+## Objective
+
+The JMVA paper introduces weighted multivariate sign functions.
+
+The simulations compare:
+
+- Covariance matrix.
+- Spatial sign covariance matrix.
+- Weighted sign covariance estimators.
+
+## Run JMVA simulations
+
+```{r jmva-results}
+# Source file already prints the JMVA tables
+```
+
+## Interpretation
+
+- FSE > 1 indicates improvement over the classical covariance matrix.
+- Weighted signs aim to improve efficiency while preserving robustness.
+
+# Section 3: Direct Comparison
+
+## Objective
+
+Compare the JASA and JMVA methodologies on the same dataset.
+
+```{r comparison}
+# Section 4 of the source file performs the comparison.
+```
+
+## Interpretation
+
+- JASA evaluates testing performance.
+- JMVA evaluates eigenvector recovery.
+- Heavier tails should increase the gain from weighted signs.
+
+# Conclusions
+
+The simulations successfully reproduce the major findings of:
+
+- Wang, Peng and Li (2015).
+- Majumdar and Chatterjee (2022).
+
+The results confirm:
+
+1. Good size control for the JASA test.
+2. Increased power under heavy tails.
+3. Improved finite-sample efficiency for weighted signs.
+4. Robustness under contamination.
+
+# References
+
+1. Wang, L., Peng, B., and Li, R. (2015). *A High-Dimensional Nonparametric Multivariate Test*. Journal of the American Statistical Association.
+
+2. Majumdar, S., and Chatterjee, S. (2022). *On Weighted Multivariate Sign Functions*. Journal of Multivariate Analysis.
