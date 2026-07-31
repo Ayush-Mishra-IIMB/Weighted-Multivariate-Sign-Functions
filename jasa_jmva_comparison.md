@@ -259,20 +259,6 @@ where $S(X_i;\mu) = (X_i - \mu)/|X_i - \mu|$ and $W$ is a depth-based weight.
 | Joint power ($t_3$) | New, CQ, JMVA at shifted μ | **New ≈ JMVA >> CQ** |
 | Joint power (Normal) | New, CQ, JMVA at shifted μ | New ≈ CQ ≈ JMVA |
 
----
-
-## 8. Question for the Professor
-
-> In the JASA paper, $T_n$ achieves a normal limit when $p \gg n$ by exploiting
-> concentration of quadratic forms on the unit sphere (Lemma 3). This relies
-> critically on $\|Z_i\| = 1$ for all $i$, which enables the fast variance identity
-> $T_n = (\|\sum Z_i\|^2 - n)/2$.
->
-> In the JMVA paper the weighted sign $R_i = S(X_i;\mu) \cdot W_i$ has norm
-> $\|R_i\| = W_i \in (0,1]$, not 1. Would a weighted version of the JASA test
-> statistic — replacing $Z_i$ with $R_i$ — still admit a tractable normal limit
-> in the $p \gg n$ regime, or does the concentration inequality in Lemma 3
-> fundamentally require the signs to sit exactly on the unit sphere?
 
 ---
 
