@@ -39,7 +39,7 @@ R/
 ```{r setup, message=FALSE, warning=FALSE}
 library(MASS)
 
-source("../full_comparison_single_file.R")
+source("../R/full_comparison_single_file.R")
 ```
 
 # Section 1: JASA Replication

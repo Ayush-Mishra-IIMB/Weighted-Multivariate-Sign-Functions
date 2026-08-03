@@ -291,24 +291,24 @@ verify_weight_properties <- function(X, method = "PD") {
 # =============================================================================
 # Uncomment and run to see all three weight functions in action:
 
-# library(MASS)
-# set.seed(42)
-# X <- mvrnorm(n = 200, mu = c(2, 3), Sigma = matrix(c(2, 1, 1, 1), 2, 2))
+ library(MASS)
+ set.seed(42)
+ X <- mvrnorm(n = 200, mu = c(2, 3), Sigma = matrix(c(2, 1, 1, 1), 2, 2))
 #
-# W_hsd <- compute_weights(X, method = "HSD")
-# W_mhd <- compute_weights(X, method = "MhD")
-# W_pd  <- compute_weights(X, method = "PD")
+ W_hsd <- compute_weights(X, method = "HSD")
+ W_mhd <- compute_weights(X, method = "MhD")
+ W_pd  <- compute_weights(X, method = "PD")
 #
 # # Visual check: plot weight vs distance from center
-# Z <- standardize_to_Z(X)
-# z_norm <- row_norms(Z)
+ Z <- standardize_to_Z(X)
+ z_norm <- row_norms(Z)
 #
-# par(mfrow = c(1, 3))
-# plot(z_norm, W_hsd, main = "HSD Weights vs |Z|", xlab = "|Z|", ylab = "W")
-# plot(z_norm, W_mhd, main = "MhD Weights vs |Z|", xlab = "|Z|", ylab = "W")
-# plot(z_norm, W_pd,  main = "PD Weights vs |Z|",  xlab = "|Z|", ylab = "W")
+ par(mfrow = c(1, 3))
+ plot(z_norm, W_hsd, main = "HSD Weights vs |Z|", xlab = "|Z|", ylab = "W")
+ plot(z_norm, W_mhd, main = "MhD Weights vs |Z|", xlab = "|Z|", ylab = "W")
+ plot(z_norm, W_pd,  main = "PD Weights vs |Z|",  xlab = "|Z|", ylab = "W")
 #
 # # Verify properties
-# verify_weight_properties(X, "HSD")
-# verify_weight_properties(X, "MhD")
-# verify_weight_properties(X, "PD")
+ verify_weight_properties(X, "HSD")
+ verify_weight_properties(X, "MhD")
+ verify_weight_properties(X, "PD")

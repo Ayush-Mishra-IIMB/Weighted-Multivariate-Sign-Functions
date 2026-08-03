@@ -325,23 +325,23 @@ compute_ARE_wsm <- function(X, method = "PD") {
 # =============================================================================
 # Uncomment and run to test:
 
-# library(MASS)
-# set.seed(42)
-# X <- mvrnorm(n = 200, mu = c(2, 3), Sigma = matrix(c(2,1,1,1), 2, 2))
+ library(MASS)
+ set.seed(42)
+ X <- mvrnorm(n = 10000, mu = c(2, 3), Sigma = matrix(c(2,1,1,1), 2, 2))
 #
 # # Compute weighted spatial median
-# result_pd  <- compute_wsm(X, method = "PD",  verbose = TRUE)
-# result_mhd <- compute_wsm(X, method = "MhD", verbose = TRUE)
-# result_hsd <- compute_wsm(X, method = "HSD", verbose = TRUE)
+ result_pd  <- compute_wsm(X, method = "PD",  verbose = TRUE)
+ result_mhd <- compute_wsm(X, method = "MhD", verbose = TRUE)
+ result_hsd <- compute_wsm(X, method = "HSD", verbose = TRUE)
 #
-# cat("True mu:         ", c(2, 3), "\n")
-# cat("Column means:    ", colMeans(X), "\n")
-# cat("WSM (PD):        ", result_pd$median, "\n")
-# cat("WSM (MhD):       ", result_mhd$median, "\n")
-# cat("WSM (HSD):       ", result_hsd$median, "\n")
+ cat("True mu:         ", c(2, 3), "\n")
+ cat("Column means:    ", colMeans(X), "\n")
+ cat("WSM (PD):        ", result_pd$median, "\n")
+ cat("WSM (MhD):       ", result_mhd$median, "\n")
+ cat("WSM (HSD):       ", result_hsd$median, "\n")
 #
 # # ARE comparison
-# are_pd  <- compute_ARE_wsm(X, method = "PD")
-# are_mhd <- compute_ARE_wsm(X, method = "MhD")
-# cat(sprintf("ARE (PD vs unweighted):  %.4f\n", are_pd))
-# cat(sprintf("ARE (MhD vs unweighted): %.4f\n", are_mhd))
+ are_pd  <- compute_ARE_wsm(X, method = "PD")
+ are_mhd <- compute_ARE_wsm(X, method = "MhD")
+ cat(sprintf("ARE (PD vs unweighted):  %.4f\n", are_pd))
+ cat(sprintf("ARE (MhD vs unweighted): %.4f\n", are_mhd))
