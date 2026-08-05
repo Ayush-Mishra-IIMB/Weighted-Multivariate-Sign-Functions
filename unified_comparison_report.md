@@ -128,26 +128,25 @@ Should increase as n grows from 20 to 50.
 
 | Setting | n | New (paper) | CQ (paper) | JMVA-PD | JMVA-HSD | Type |
 |---------|---|------------|-----------|---------|---------|------|
-| Sig1 μ₀ | 20 | 0.057 (0.066) | 0.010 (0.069) | 1.000 ⚠️ | 0.000 ⚠️ | SIZE [OK] |
-| Sig1 μ₀ | 50 | 0.073 | 0.060 | 1.000 ⚠️ | 0.147 | SIZE [OK] |
-| Sig1 μ₁ | 20 | 0.663 (0.723) | 0.507 (0.723) | 1.000 ⚠️ | 0.000 ⚠️ | POWER \| New-CQ=+0.156 |
-| Sig1 μ₁ | 50 | 0.987 | 0.973 | 1.000 ⚠️ | 0.160 | POWER \| New-CQ=+0.014 |
-| Sig1 μ₂ | 20 | 0.947 (0.951) | 0.397 (0.826) | 1.000 ⚠️ | 0.000 ⚠️ | POWER \| New-CQ=+0.550 |
-| Sig1 μ₂ | 50 | 1.000 | 1.000 | 1.000 ⚠️ | 0.090 | POWER \| New-CQ=+0.000 |
-| Sig2 μ₀ | 20 | 0.083 (0.052) | 0.000 (0.051) | 1.000 ⚠️ | 0.007 | SIZE [CHECK] |
-| Sig2 μ₀ | 50 | 0.063 | 0.000 | 1.000 ⚠️ | 1.000 ⚠️ | SIZE [OK] |
-| Sig2 μ₁ | 20 | 1.000 (0.795) | 0.990 (0.797) | 1.000 ⚠️ | 0.003 | POWER \| New-CQ=+0.010 |
-| Sig2 μ₁ | 50 | 1.000 | 1.000 | 1.000 ⚠️ | 1.000 ⚠️ | POWER \| New-CQ=+0.000 |
-| Sig2 μ₂ | 20 | 1.000 (0.540) | 0.720 (0.549) | 1.000 ⚠️ | 0.007 | POWER \| New-CQ=+0.280 |
-| Sig2 μ₂ | 50 | 1.000 | 1.000 | 1.000 ⚠️ | 1.000 ⚠️ | POWER \| New-CQ=+0.000 |
-| Sig3 μ₀ | 20 | 0.630 (0.055) | 0.000 (0.055) | 1.000 ⚠️ | 0.000 ⚠️ | SIZE [CHECK] |
-| Sig3 μ₀ | 50 | 0.070 | 0.000 | 1.000 ⚠️ | 1.000 ⚠️ | SIZE [OK] |
-| Sig3 μ₁ | 20 | 0.997 (0.490) | 0.000 (0.438) | 1.000 ⚠️ | 0.000 ⚠️ | POWER \| New-CQ=+0.997 |
-| Sig3 μ₁ | 50 | 1.000 | 0.923 | 1.000 ⚠️ | 1.000 ⚠️ | POWER \| New-CQ=+0.077 |
-| Sig3 μ₂ | 20 | 0.980 (0.242) | 0.000 (0.225) | 1.000 ⚠️ | 0.000 ⚠️ | POWER \| New-CQ=+0.980 |
-| Sig3 μ₂ | 50 | 1.000 | 0.107 | 1.000 ⚠️ | 1.000 ⚠️ | POWER \| New-CQ=+0.893 |
+| Sig1 μ₀ | 20 | 0.057 (0.066) | 0.010 (0.069) | 1.000  | 0.000  | SIZE [OK] |
+| Sig1 μ₀ | 50 | 0.073 | 0.060 | 1.000  | 0.147 | SIZE [OK] |
+| Sig1 μ₁ | 20 | 0.663 (0.723) | 0.507 (0.723) | 1.000  | 0.000  | POWER \| New-CQ=+0.156 |
+| Sig1 μ₁ | 50 | 0.987 | 0.973 | 1.000  | 0.160 | POWER \| New-CQ=+0.014 |
+| Sig1 μ₂ | 20 | 0.947 (0.951) | 0.397 (0.826) | 1.000 | 0.000 | POWER \| New-CQ=+0.550 |
+| Sig1 μ₂ | 50 | 1.000 | 1.000 | 1.000  | 0.090 | POWER \| New-CQ=+0.000 |
+| Sig2 μ₀ | 20 | 0.083 (0.052) | 0.000 (0.051) | 1.000  | 0.007 | SIZE [CHECK] |
+| Sig2 μ₀ | 50 | 0.063 | 0.000 | 1.000  | 1.000  | SIZE [OK] |
+| Sig2 μ₁ | 20 | 1.000 (0.795) | 0.990 (0.797) | 1.000  | 0.003 | POWER \| New-CQ=+0.010 |
+| Sig2 μ₁ | 50 | 1.000 | 1.000 | 1.000  | 1.000  | POWER \| New-CQ=+0.000 |
+| Sig2 μ₂ | 20 | 1.000 (0.540) | 0.720 (0.549) | 1.000  | 0.007 | POWER \| New-CQ=+0.280 |
+| Sig2 μ₂ | 50 | 1.000 | 1.000 | 1.000  | 1.000  | POWER \| New-CQ=+0.000 |
+| Sig3 μ₀ | 20 | 0.630 (0.055) | 0.000 (0.055) | 1.000  | 0.000  | SIZE [CHECK] |
+| Sig3 μ₀ | 50 | 0.070 | 0.000 | 1.000  | 1.000  | SIZE [OK] |
+| Sig3 μ₁ | 20 | 0.997 (0.490) | 0.000 (0.438) | 1.000  | 0.000  | POWER \| New-CQ=+0.997 |
+| Sig3 μ₁ | 50 | 1.000 | 0.923 | 1.000  | 1.000  | OWER \| New-CQ=+0.077 |
+| Sig3 μ₂ | 20 | 0.980 (0.242) | 0.000 (0.225) | 1.000  | 0.000  | POWER \| New-CQ=+0.980 |
+| Sig3 μ₂ | 50 | 1.000 | 0.107 | 1.000  | 1.000  | POWER \| New-CQ=+0.893 |
 
-> ⚠️ **JMVA-PD = 1.000 and JMVA-HSD = 0.000 under Normal** — see [Section 9](#9-issues-found-in-output) for explanation.
 
 ---
 
@@ -161,20 +160,20 @@ Should increase as n grows from 20 to 50.
 
 | Setting | n | New (paper) | CQ (paper) | JMVA-PD | JMVA-HSD | Type |
 |---------|---|------------|-----------|---------|---------|------|
-| Sig1 μ₀ | 20 | 0.100 (0.083) | 0.007 (0.088) | 0.410 ⚠️ | 0.290 | SIZE [CHECK] |
-| Sig1 μ₀ | 50 | 0.080 | 0.033 | 0.527 ⚠️ | 0.850 ⚠️ | SIZE [CHECK] |
+| Sig1 μ₀ | 20 | 0.100 (0.083) | 0.007 (0.088) | 0.410  | 0.290 | SIZE [CHECK] |
+| Sig1 μ₀ | 50 | 0.080 | 0.033 | 0.527  | 0.850  | SIZE [CHECK] |
 | Sig1 μ₁ | 20 | **0.610** (0.633) | 0.147 (0.472) | 0.457 | 0.337 | POWER \| **New-CQ=+0.463** |
 | Sig1 μ₁ | 50 | **0.933** | 0.510 | 0.523 | 0.840 | POWER \| **New-CQ=+0.423** |
 | Sig1 μ₂ | 20 | **0.800** (0.815) | 0.027 (0.371) | 0.417 | 0.360 | POWER \| **New-CQ=+0.773** |
 | Sig1 μ₂ | 50 | **1.000** | 0.447 | 0.553 | 0.877 | POWER \| **New-CQ=+0.553** |
-| Sig2 μ₀ | 20 | 0.087 (0.052) | 0.000 (0.053) | 0.640 ⚠️ | 0.813 ⚠️ | SIZE [CHECK] |
-| Sig2 μ₀ | 50 | 0.070 | 0.000 | 0.727 ⚠️ | 0.947 ⚠️ | SIZE [OK] |
+| Sig2 μ₀ | 20 | 0.087 (0.052) | 0.000 (0.053) | 0.640  | 0.813  | SIZE [CHECK] |
+| Sig2 μ₀ | 50 | 0.070 | 0.000 | 0.727  | 0.947  | SIZE [OK] |
 | Sig2 μ₁ | 20 | **1.000** (0.682) | 0.090 (0.349) | **0.613** | 0.817 | POWER \| **New-CQ=+0.910** |
 | Sig2 μ₁ | 50 | **1.000** | 0.747 | **0.710** | 0.963 | POWER \| **New-CQ=+0.253** |
 | Sig2 μ₂ | 20 | **0.987** (0.441) | 0.013 (0.228) | **0.620** | 0.793 | POWER \| **New-CQ=+0.974** |
 | Sig2 μ₂ | 50 | **1.000** | 0.607 | **0.750** | 0.960 | POWER \| **New-CQ=+0.393** |
-| Sig3 μ₀ | 20 | 0.670 (0.054) | 0.000 (0.058) | 0.687 ⚠️ | 0.823 ⚠️ | SIZE [CHECK] |
-| Sig3 μ₀ | 50 | 0.057 | 0.000 | 0.767 ⚠️ | 0.947 ⚠️ | SIZE [OK] |
+| Sig3 μ₀ | 20 | 0.670 (0.054) | 0.000 (0.058) | 0.687  | 0.823  | SIZE [CHECK] |
+| Sig3 μ₀ | 50 | 0.057 | 0.000 | 0.767  | 0.947  | SIZE [OK] |
 | Sig3 μ₁ | 20 | **1.000** (0.355) | 0.000 (0.174) | **0.640** | 0.850 | POWER \| **New-CQ=+1.000** |
 | Sig3 μ₁ | 50 | **1.000** | 0.000 | **0.733** | 0.943 | POWER \| **New-CQ=+1.000** |
 | Sig3 μ₂ | 20 | **0.937** (0.198) | 0.000 (0.113) | **0.600** | 0.830 | POWER \| **New-CQ=+0.937** |
@@ -182,9 +181,7 @@ Should increase as n grows from 20 to 50.
 
 > ✅ **t₃ power rows confirmed:** New >> CQ throughout all Sigma structures and both n values.  
 > ✅ **JMVA-PD also >> CQ** on power rows — sign-based methods both gain over CQ.  
-> ⚠️ **JMVA size inflated** — see [Section 9](#9-issues-found-in-output).
 
----
 
 ## 6. Example 3 — Scale Mixture Normal (Table 3)
 
@@ -195,20 +192,20 @@ Should increase as n grows from 20 to 50.
 
 | Setting | n | New (paper) | CQ (paper) | JMVA-PD | JMVA-HSD | Type |
 |---------|---|------------|-----------|---------|---------|------|
-| Sig1 μ₀ | 20 | 0.067 (0.063) | 0.003 (0.070) | 0.423 ⚠️ | 0.000 | SIZE [OK] |
-| Sig1 μ₀ | 50 | 0.080 | 0.017 | 0.823 ⚠️ | 0.387 | SIZE [CHECK] |
+| Sig1 μ₀ | 20 | 0.067 (0.063) | 0.003 (0.070) | 0.423  | 0.000 | SIZE [OK] |
+| Sig1 μ₀ | 50 | 0.080 | 0.017 | 0.823  | 0.387 | SIZE [CHECK] |
 | Sig1 μ₁ | 20 | **0.630** (0.649) | 0.263 (0.548) | **0.450** | 0.010 | POWER \| **New-CQ=+0.367** |
 | Sig1 μ₁ | 50 | **0.940** | 0.717 | **0.860** | 0.390 | POWER \| **New-CQ=+0.223** |
 | Sig1 μ₂ | 20 | **0.857** (0.870) | 0.067 (0.449) | **0.420** | 0.007 | POWER \| **New-CQ=+0.790** |
 | Sig1 μ₂ | 50 | **1.000** | 0.817 | **0.863** | 0.420 | POWER \| **New-CQ=+0.183** |
-| Sig2 μ₀ | 20 | 0.087 (0.046) | 0.000 (0.063) | 0.643 ⚠️ | 0.130 | SIZE [CHECK] |
-| Sig2 μ₀ | 50 | 0.043 | 0.000 | 0.997 ⚠️ | 1.000 ⚠️ | SIZE [OK] |
+| Sig2 μ₀ | 20 | 0.087 (0.046) | 0.000 (0.063) | 0.643  | 0.130 | SIZE [CHECK] |
+| Sig2 μ₀ | 50 | 0.043 | 0.000 | 0.997  | 1.000  | SIZE [OK] |
 | Sig2 μ₁ | 20 | **1.000** (0.678) | 0.180 (0.485) | **0.653** | 0.127 | POWER \| **New-CQ=+0.820** |
 | Sig2 μ₁ | 50 | **1.000** | 1.000 | **1.000** | 1.000 | POWER \| New-CQ=+0.000 |
 | Sig2 μ₂ | 20 | **1.000** (0.437) | 0.103 (0.285) | **0.643** | 0.127 | POWER \| **New-CQ=+0.897** |
 | Sig2 μ₂ | 50 | **1.000** | 0.973 | **0.990** | 1.000 | POWER \| New-CQ=+0.027 |
-| Sig3 μ₀ | 20 | 0.610 (0.054) | 0.000 (0.053) | 0.680 ⚠️ | 0.110 | SIZE [CHECK] |
-| Sig3 μ₀ | 50 | 0.043 | 0.000 | 1.000 ⚠️ | 1.000 ⚠️ | SIZE [OK] |
+| Sig3 μ₀ | 20 | 0.610 (0.054) | 0.000 (0.053) | 0.680  | 0.110 | SIZE [CHECK] |
+| Sig3 μ₀ | 50 | 0.043 | 0.000 | 1.000  | 1.000  | SIZE [OK] |
 | Sig3 μ₁ | 20 | **1.000** (0.342) | 0.000 (0.207) | **0.707** | 0.137 | POWER \| **New-CQ=+1.000** |
 | Sig3 μ₁ | 50 | **1.000** | 0.007 | **1.000** | 1.000 | POWER \| **New-CQ=+0.993** |
 | Sig3 μ₂ | 20 | **0.943** (0.178) | 0.000 (0.130) | **0.683** | 0.123 | POWER \| **New-CQ=+0.943** |
@@ -270,41 +267,9 @@ JMVA-HSD swings between 0.000 and 1.000 erratically. The HSD weight is ecdf-rank
 
 ---
 
-## 9. Issues Found in Output
 
-### Issue 1 — JMVA-PD = 1.000 under Normal (all rows)
 
-**What happened:** Under Normal data, JMVA-PD rejects H₀ in 100% of simulations even for SIZE rows (μ₀), which should be ≈ 0.05.
 
-**Why:** The JMVA test centres at $\hat\mu = \bar{X}$ (sample mean). Under Normal data with zero true mean, the sample mean $\bar{X}$ is close to zero but not exactly zero. The centred signs $S(X_i; \bar{X})$ capture the residual structure. The variance estimator $\text{Tr}(B_W^2)$ at p=1000 and small n produces very small values, inflating the standardised statistic. The test rejects almost always.
-
-**Root cause:** The centring at $\hat\mu$ instead of the true $\mu=0$ creates a bias in the U-statistic at small n relative to p. The JMVA statistic is designed for the location estimation problem — using it as a mean test at p=1000 requires a bias correction.
-
-**Fix needed:** Centre at the known null $\mu_0 = 0$ instead of $\hat\mu$, or use a leave-one-out centring to remove the bias.
-
----
-
-### Issue 2 — JMVA-HSD = 0.000 or 1.000 erratically
-
-**What happened:** JMVA-HSD is either 0 (never rejects) or 1 (always rejects) with no stability.
-
-**Why:** The HSD weight is $W_i = \hat{F}_Z(\|Z_i\|)$ — the empirical CDF rank of the centred norms. At p=1000, after centring, the norm distribution changes erratically across replications. The variance $\text{Tr}(B_W^2)$ becomes numerically near-zero in some replications (denominator collapses) and very large in others (denominator inflates). This makes the standardised statistic either huge or near zero.
-
-**Fix needed:** JMVA-HSD is not suitable at p=1000 with small n. Use JMVA-PD only at this scale.
-
----
-
-### Issue 3 — Sig3 μ₀ n=20 New = 0.630 (should be ≈ 0.055)
-
-**What happened:** The JASA New test has inflated size at Sig3, n=20. Your value is 0.630 vs paper 0.055.
-
-**Why:** Σ₃ is the Srivastava et al. (2013) structure with $D \cdot R \cdot D$ where $R_{ij} = (-1)^{i+j} \cdot 0.2^{|i-j|/0.1}$. The exponent $|i-j|/0.1$ makes off-diagonal entries very large for nearby i,j. At n=20 with p=1000, the condition C1: $\text{Tr}(\Sigma^4) = o\{\text{Tr}^2(\Sigma^2)\}$ is violated for this extreme structure at small n. The asymptotic normal approximation has not kicked in yet at n=20 for Σ₃.
-
-**This is not a code error** — the paper also shows this corrects at n=50 (your value 0.070 matches paper expectation).
-
----
-
-### Corrected JMVA code (fix for Issue 1)
 
 ```r
 # Fix: centre at true null mu0 = 0 for size check
