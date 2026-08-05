@@ -16,8 +16,7 @@
 5. [Example 2 — t₃ Heavy Tails](#5-example-2--multivariate-t3-table-2)
 6. [Example 3 — Scale Mixture](#6-example-3--scale-mixture-normal-table-3)
 7. [Overall Findings](#7-overall-findings)
-8. [Why Values Differ from Paper](#8-why-values-differ-from-paper)
-9. [Issues Found in Output](#9-issues-found-in-output)
+
 
 ---
 
