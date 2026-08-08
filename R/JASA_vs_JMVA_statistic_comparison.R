@@ -1,32 +1,34 @@
 # ================================================================
-#  UNIFIED COMPARISON v3 — Professor's correction applied
-#  source("final_unified_v3.R")
+#  UNIFIED COMPARISON v4 — Professor's correction properly applied
+#  source("final_unified_v4.R")
 #
-#  KEY FIX (professor's comment):
-#    Weight functions must use Z = Sigma^{-1/2}(Xi - mu)
-#    NOT raw ||Xi - mu|| as in previous versions
-#    This is from JMVA paper Section 2, end of page 3
+#  PREVIOUS ATTEMPT (v3) WAS STILL WRONG:
+#    Used diag(diag(Sigma)) as approximation of Sigma^{-1/2}
+#    For Sigma1 and Sigma2 all diagonal entries = 1
+#    So diag approx = Identity → Z = Xi - mu → no change at all
 #
-#  All three weight functions (PD, HSD, MhD) now correctly
-#  standardise by Sigma^{-1/2} before computing norms
+#  CORRECT FIX (this version):
+#    Compute full Sigma^{-1/2} via eigendecomposition
+#    Sigma = V D V'  →  Sigma^{-1/2} = V D^{-1/2} V'
+#    Then Z_i = Sigma^{-1/2} (Xi - mu)
 #
-#  STRUCTURE:
-#    Same as JASA Tables 1, 2, 3:
-#    Sigma1, Sigma2, Sigma3 x mu0, mu1, mu2
-#    Normal | t3 | Mixture
-#    Methods: New (JASA Tn) | CQ | JMVA-PD | JMVA-HSD
+#  At p=1000: eigendecomposition is computed ONCE per cell
+#  (not inside the B loop) — affordable
+#
+#  SOURCE: JMVA paper Section 2, end of page 3
+#    "W(X, F) = W(Z, FZ) where Z = Sigma^{-1/2}(X - mu)"
 # ================================================================
 
 library(MASS)
 set.seed(2025)
 
-B <- 300   # paper uses 1000 — increase for closer match
+B <- 300   # paper uses 1000
 
 cat("================================================================\n")
-cat("  UNIFIED COMPARISON v3\n")
-cat("  FIX: weights based on Z = Sigma^{-1/2}(Xi - mu)\n")
-cat("  p=1000 | n=20,50 | Sig1,2,3 | mu0,1,2\n")
-cat("  B =", B, "\n")
+cat("  UNIFIED COMPARISON v4\n")
+cat("  PROPER FIX: full Sigma^{-1/2} via eigendecomposition\n")
+cat("  Z = Sigma^{-1/2}(Xi - mu) as per JMVA paper Section 2\n")
+cat("  p=1000 | n=20,50 | Sig1,2,3 | mu0,1,2 | B =", B, "\n")
 cat("================================================================\n\n")
 
 # ================================================================
@@ -42,13 +44,12 @@ jasa_sign <- function(X) {
 }
 
 jasa_Tn <- function(X) {
-  Z  <- jasa_sign(X)
-  cs <- colSums(Z)
+  Z  <- jasa_sign(X); cs <- colSums(Z)
   (sum(cs^2) - nrow(Z)) / 2
 }
 
 jasa_var <- function(X) {
-  Z   <- jasa_sign(X); n <- nrow(Z)
+  Z <- jasa_sign(X); n <- nrow(Z)
   ZZt <- Z %*% t(Z); ZtZ <- t(Z) %*% Z; Zs <- colMeans(Z)
   t1  <- -n/(n-2)^2
   t2  <- (n-1)/(n*(n-2)^2) * sum(ZZt^2)
@@ -63,7 +64,7 @@ jasa_pval <- function(X) {
   2 * pnorm(-abs(Tn / sqrt(abs(vn))))
 }
 
-# ------ 1B. CQ exact (Chen & Qin 2010, unchanged) ------
+# ------ 1B. CQ exact (unchanged) ------
 
 cq_pval <- function(X) {
   n   <- nrow(X)
@@ -74,58 +75,60 @@ cq_pval <- function(X) {
   2 * pnorm(-abs(cq / sqrt(abs(var_cq))))
 }
 
-# ------ 1C. JMVA weight functions — CORRECTED ------
+# ------ 1C. Precompute Sigma^{-1/2} via eigendecomposition ------
 #
-# PROFESSOR'S FIX:
-# Weights must be based on the standardised version
-#   Z_i = Sigma^{-1/2} (X_i - mu)
-# as stated in JMVA paper Section 2, end of page 3.
+# WHY eigendecomposition and NOT chol(solve(Sigma)):
+#   chol(solve(Sigma)) fails for near-singular Sigma (e.g. high rho AR)
+#   Eigendecomposition is numerically stable for any Sigma
 #
-# Previous code used ||X_i - mu|| (wrong — raw distances
-# ignore the covariance structure and cause instability).
+# Sigma = V D V'  (eigendecomposition)
+# Sigma^{-1/2} = V D^{-1/2} V'
 #
-# Now all weight functions accept Sigma and compute
-# Z = Sigma^{-1/2}(X - mu) before computing any norms.
+# Computed ONCE per (Sigma, mu) combination — not inside B loop
+# This makes it affordable even at p=1000
 
-# Helper: compute standardised Z = Sigma^{-1/2}(X - mu)
-standardise <- function(X, mu, Sigma) {
-  Xc       <- sweep(X, 2, mu)           # Xi - mu  (n x p)
-  Sinvhalf <- chol(solve(Sigma))        # upper triangular Sigma^{-1/2}
-  Xc %*% t(Sinvhalf)                    # Z = (Xi-mu) Sigma^{-1/2}  (n x p)
+compute_Sinvhalf <- function(Sigma) {
+  # Eigendecomposition: Sigma = V D V'
+  eig  <- eigen(Sigma, symmetric = TRUE)
+  V    <- eig$vectors          # p x p eigenvector matrix
+  d    <- eig$values           # p eigenvalues
+  # Clamp tiny/negative eigenvalues for numerical safety
+  d    <- pmax(d, 1e-10)
+  # Sigma^{-1/2} = V D^{-1/2} V'
+  V %*% diag(1/sqrt(d)) %*% t(V)
 }
 
-# W_PD: projection depth weight (paper p.4)
-# W(Xi) proportional to ||Zi|| / (1 + ||Zi|| / MAD(||Z||))
-# where Zi = Sigma^{-1/2}(Xi - mu)  <-- corrected
-w_pd <- function(X, mu, Sigma) {
-  Z     <- standardise(X, mu, Sigma)    # Z = Sigma^{-1/2}(X - mu)
-  nr    <- sqrt(rowSums(Z^2))           # ||Zi||
+# Standardise: Z = Sigma^{-1/2}(X - mu)
+# Sinvhalf is precomputed outside the B loop
+standardise <- function(X, mu, Sinvhalf) {
+  Xc <- sweep(X, 2, mu)        # n x p: Xi - mu
+  Xc %*% Sinvhalf              # n x p: Z = (Xi - mu) Sigma^{-1/2}
+  # Note: Sinvhalf is symmetric so (Xi-mu) Sinvhalf = Sinvhalf (Xi-mu)
+}
+
+# ------ 1D. JMVA weight functions — correctly use Z = Sigma^{-1/2}(Xi-mu) ------
+
+# W_PD: projection depth weight
+# W(Xi) ∝ ||Zi|| / (1 + ||Zi|| / MAD(||Z||))
+# where Zi = Sigma^{-1/2}(Xi - mu)   [JMVA paper p.4]
+w_pd <- function(Z_mat) {
+  # Z_mat is already standardised: n x p matrix of Zi vectors
+  nr    <- sqrt(rowSums(Z_mat^2))     # ||Zi||
   mad_r <- median(abs(nr - median(nr)))
   if (mad_r < 1e-8) mad_r <- 1e-8
   w <- nr / (1 + nr / mad_r)
   w / max(w)
 }
 
-# W_HSD: half-space depth weight (paper p.3)
+# W_HSD: half-space depth weight
 # W(Xi) = empirical CDF of ||Zi||
-# where Zi = Sigma^{-1/2}(Xi - mu)  <-- corrected
-w_hsd <- function(X, mu, Sigma) {
-  Z  <- standardise(X, mu, Sigma)       # Z = Sigma^{-1/2}(X - mu)
-  nr <- sqrt(rowSums(Z^2))              # ||Zi||
+# where Zi = Sigma^{-1/2}(Xi - mu)   [JMVA paper p.3]
+w_hsd <- function(Z_mat) {
+  nr <- sqrt(rowSums(Z_mat^2))        # ||Zi||
   ecdf(nr)(nr)
 }
 
-# W_MhD: Mahalanobis depth weight (paper p.3)
-# W(Xi) proportional to ||Zi||^2 / (1 + ||Zi||^2)
-# where Zi = Sigma^{-1/2}(Xi - mu)  <-- corrected
-w_mahal <- function(X, mu, Sigma) {
-  Z  <- standardise(X, mu, Sigma)       # Z = Sigma^{-1/2}(X - mu)
-  r2 <- rowSums(Z^2)                    # ||Zi||^2
-  w  <- r2 / (1 + r2)
-  w / max(w)
-}
-
-# ------ 1D. JMVA centred sign ------
+# ------ 1E. JMVA centred sign (in original space) ------
 
 jmva_sign <- function(X, mu) {
   Xc <- sweep(X, 2, mu)
@@ -134,70 +137,61 @@ jmva_sign <- function(X, mu) {
   S[nr == 0, ] <- 0; S
 }
 
-# ------ 1E. JMVA weighted sign U-statistic ------
+# ------ 1F. JMVA weighted sign U-statistic ------
 #
-# R_i = S(Xi; mu_hat) * W(Xi, Sigma)
-#   S(Xi; mu_hat) = (Xi - mu_hat) / ||Xi - mu_hat||  (centred sign)
-#   W(Xi, Sigma)  = depth weight based on Z = Sigma^{-1/2}(Xi - mu_hat)
+# KEY POINT:
+#   Sign S(Xi; mu_hat) is computed in ORIGINAL space (not standardised)
+#   Weight W(Xi) is computed from STANDARDISED Z = Sigma^{-1/2}(Xi - mu_hat)
+#   This matches JMVA paper: R(Xi; mu, F) = S(Xi, mu) * W(Xi, F)
+#   where W depends on the standardised version as per Section 2
 #
-# T_W = sum_{i} sum_{j<i} Ri' Rj
-#     = (||colSums(R)||^2 - sum(rowSums(R^2))) / 2
-#
-# var(T_W) = n(n-1)/2 * Tr(Bw^2),  Bw = (1/n) R'R
-#
-# Standardised: T_W / sqrt(var_W) ~ N(0,1)
-# Same structure as JASA Tn — works at any p, no matrix inversion
+# Sinvhalf: precomputed Sigma^{-1/2} passed in from run_cell()
 
-jmva_pval <- function(X, wtype = "pd", Sigma = NULL) {
+jmva_pval <- function(X, wtype = "pd", Sinvhalf = NULL) {
   n      <- nrow(X); p <- ncol(X)
-
-  # Estimate centre from data
   mu_hat <- colMeans(X)
 
-  # If Sigma not provided use identity (fallback)
-  if (is.null(Sigma)) Sigma <- diag(p)
+  # If no Sinvhalf provided use identity (fallback)
+  if (is.null(Sinvhalf)) Sinvhalf <- diag(p)
 
-  # Centred signs: S(Xi; mu_hat)
+  # Step 1: centred sign in original space
   S <- jmva_sign(X, mu_hat)
 
-  # Weights — now correctly based on Z = Sigma^{-1/2}(Xi - mu_hat)
+  # Step 2: standardised Z for weight computation
+  Z_mat <- standardise(X, mu_hat, Sinvhalf)   # Z = Sigma^{-1/2}(Xi - mu_hat)
+
+  # Step 3: weights based on ||Zi|| (standardised norms)
   w <- switch(wtype,
-    "pd"    = w_pd(X, mu_hat, Sigma),
-    "hsd"   = w_hsd(X, mu_hat, Sigma),
-    "mahal" = w_mahal(X, mu_hat, Sigma)
+    "pd"  = w_pd(Z_mat),
+    "hsd" = w_hsd(Z_mat)
   )
 
-  # Weighted sign vectors: Ri = S(Xi; mu_hat) * Wi
+  # Step 4: weighted sign vectors Ri = S(Xi; mu_hat) * Wi
   R <- S * w
 
-  # U-statistic (fast formula)
+  # Step 5: U-statistic (fast formula)
   cs     <- colSums(R)
   row_sq <- sum(rowSums(R^2))
   Tw     <- (sum(cs^2) - row_sq) / 2
 
-  # Variance
+  # Step 6: variance and p-value
   Bw     <- t(R) %*% R / n
   var_Tw <- n*(n-1)/2 * sum(Bw^2)
-
-  # p-value from N(0,1)
   2 * pnorm(-abs(Tw / sqrt(abs(var_Tw))))
 }
 
-# ------ 1F. Data generators (exact JASA Section 3.1) ------
+# ------ 1G. Data generators (exact JASA Section 3.1) ------
 
 make_Sigma <- function(p, type) {
   if (type == 1) {
-    # Sigma1: compound symmetry, off-diag = 0.2
     S <- matrix(0.2, p, p); diag(S) <- 1; return(S)
   }
   if (type == 2) {
-    # Sigma2: AR(1), rho = 0.8
-    return(outer(1:p, 1:p, function(i, j) 0.8^abs(i-j)))
+    return(outer(1:p, 1:p, function(i,j) 0.8^abs(i-j)))
   }
   if (type == 3) {
-    # Sigma3: Srivastava, Katayama & Kano (2013)
     d <- 2 + (p - 1:p + 1)/p
-    R <- outer(1:p, 1:p, function(i, j)
+    R <- outer(1:p, 1:p, function(i,j)
           ifelse(i==j, 1, (-1)^(i+j) * 0.2^(abs(i-j)/0.1)))
     return(diag(d) %*% R %*% diag(d))
   }
@@ -233,39 +227,33 @@ gen_data <- function(n, mu, Sigma, dist) {
   }
 }
 
-cat("All functions loaded (with professor's Sigma^{-1/2} correction).\n\n")
+cat("All functions loaded.\n\n")
 
 # ================================================================
 # SECTION 2: SIMULATION CELL
 # ================================================================
-# NOTE: Sigma is passed to JMVA so weights use correct Z = Sigma^{-1/2}(X-mu)
-# For Sigma3 (large p=1000 matrix), we use a diagonal approximation
-# of Sigma^{-1/2} for computational efficiency
+# Sigma^{-1/2} computed ONCE per cell via eigendecomposition
+# Then passed into jmva_pval() for all B replications
 
 run_cell <- function(n, p, mu_type, sigma_type, dist) {
 
   mu    <- make_mu(p, mu_type)
   Sigma <- make_Sigma(p, sigma_type)
 
-  # For weight computation at p=1000:
-  # Full Sigma^{-1/2} is too expensive to compute
-  # Use diagonal of Sigma as approximation: Z_i ~ diag(Sigma)^{-1/2}(Xi-mu)
-  # This correctly accounts for variable-wise scaling
-  # Full Sigma^{-1/2} would be used if p were small (e.g. p=4)
-  diag_Sigma    <- diag(Sigma)                     # p-vector of variances
-  Sigma_diag    <- diag(diag_Sigma)                # diagonal matrix
-  # For weight functions: use diagonal approximation
-  Sigma_for_w   <- Sigma_diag
+  # Precompute Sigma^{-1/2} once — not inside B loop
+  cat(sprintf("    Computing Sigma^{-1/2} for Sig%d...", sigma_type))
+  Sinvhalf <- compute_Sinvhalf(Sigma)
+  cat(" done\n")
 
   rej_new <- rej_cq <- rej_pd <- rej_hsd <- 0
 
   for (b in 1:B) {
     X <- gen_data(n, mu, Sigma, dist)
 
-    if (jasa_pval(X)                          < 0.05) rej_new  <- rej_new  + 1
-    if (cq_pval(X)                            < 0.05) rej_cq   <- rej_cq   + 1
-    if (jmva_pval(X, "pd",  Sigma_for_w)     < 0.05) rej_pd   <- rej_pd   + 1
-    if (jmva_pval(X, "hsd", Sigma_for_w)     < 0.05) rej_hsd  <- rej_hsd  + 1
+    if (jasa_pval(X)                    < 0.05) rej_new  <- rej_new  + 1
+    if (cq_pval(X)                      < 0.05) rej_cq   <- rej_cq   + 1
+    if (jmva_pval(X, "pd",  Sinvhalf)  < 0.05) rej_pd   <- rej_pd   + 1
+    if (jmva_pval(X, "hsd", Sinvhalf)  < 0.05) rej_hsd  <- rej_hsd  + 1
   }
 
   c(New = round(rej_new/B, 3),
@@ -275,7 +263,7 @@ run_cell <- function(n, p, mu_type, sigma_type, dist) {
 }
 
 # ================================================================
-# SECTION 3: PRINT TABLE — mirrors JASA Tables 1, 2, 3
+# SECTION 3: PRINT TABLE
 # ================================================================
 
 paper_new <- list(
@@ -294,7 +282,7 @@ print_table <- function(dist_code, dist_label) {
   cat("\n", paste(rep("=",86),collapse=""), "\n", sep="")
   cat("  ", dist_label, "\n")
   cat("  New(paper) CQ(paper) = published JASA values at n=20, p=1000\n")
-  cat("  JMVA-PD / JMVA-HSD  = corrected weights: Z=Sigma^{-1/2}(Xi-mu)\n")
+  cat("  JMVA-PD / JMVA-HSD  = Z=Sigma^{-1/2}(Xi-mu) via eigendecomposition\n")
   cat(paste(rep("=",86),collapse=""), "\n\n", sep="")
 
   cat(sprintf("%-10s | %3s | %4s | %-14s | %-14s | %-9s | %-9s | %s\n",
@@ -308,11 +296,11 @@ print_table <- function(dist_code, dist_label) {
 
   for (sig in 1:3) {
     sk <- paste0("S",sig)
-
     for (mu_t in 0:2) {
-
       for (n in c(20, 50)) {
         p   <- 1000
+        cat(sprintf("  Running: Sig%d mu%d n=%d dist=%s\n",
+                    sig, mu_t, n, dist_code))
         res <- run_cell(n, p, mu_t, sig, dist_code)
 
         if (n == 20) {
@@ -325,19 +313,21 @@ print_table <- function(dist_code, dist_label) {
 
         if (mu_t == 0) {
           ok   <- abs(res["New"] - 0.05) < 0.025
-          type <- sprintf("SIZE  [%s]", ifelse(ok,"OK","CHECK"))
+          ok_pd <- abs(res["PD"] - 0.05) < 0.025
+          type <- sprintf("SIZE | New[%s] PD[%s]",
+                          ifelse(ok,"OK","CHECK"),
+                          ifelse(ok_pd,"OK","CHECK"))
         } else {
-          gap  <- res["New"] - res["CQ"]
-          wins <- res["PD"] > res["CQ"] + 0.03
-          type <- sprintf("POWER | New-CQ=%+.3f | JMVA-PD%s CQ",
-                          gap, ifelse(wins," >>"," ~"))
+          gap   <- res["New"] - res["CQ"]
+          wins  <- res["PD"] > res["CQ"] + 0.03
+          type  <- sprintf("POWER | New-CQ=%+.3f | JMVA-PD%s CQ",
+                           gap, ifelse(wins," >>"," ~"))
         }
 
         cat(sprintf("Sig%d mu%d    | %3d | %4d | %-14s | %-14s | %9.3f | %9.3f | %s\n",
                     sig, mu_t, n, p,
                     nw_str, cq_str,
-                    res["PD"], res["HSD"],
-                    type))
+                    res["PD"], res["HSD"], type))
       }
     }
     cat("\n")
@@ -348,43 +338,40 @@ print_table <- function(dist_code, dist_label) {
 # SECTION 4: RUN ALL THREE TABLES
 # ================================================================
 
-print_table("normal",
-  "EXAMPLE 1: Multivariate NORMAL — replicates Table 1")
-
-print_table("t3",
-  "EXAMPLE 2: Multivariate t3 (heavy tails) — replicates Table 2")
-
-print_table("mix",
-  "EXAMPLE 3: Scale Mixture 0.9N+0.1N(9S) — replicates Table 3")
+print_table("normal", "EXAMPLE 1: Normal  — Table 1")
+print_table("t3",     "EXAMPLE 2: t3      — Table 2")
+print_table("mix",    "EXAMPLE 3: Mixture — Table 3")
 
 # ================================================================
 # SECTION 5: SUMMARY
 # ================================================================
 
 cat("\n", paste(rep("=",86),collapse=""), "\n", sep="")
-cat("  SUMMARY\n")
+cat("  SUMMARY — What changed and why\n")
 cat(paste(rep("=",86),collapse=""), "\n\n", sep="")
 cat("
-PROFESSOR'S CORRECTION APPLIED:
-  Weight functions now use Z = Sigma^{-1/2}(Xi - mu)
-  NOT raw ||Xi - mu|| as in previous versions
-  Source: JMVA paper Section 2, end of page 3
+WHAT CHANGED FROM v3:
+  v3 used diag(diag(Sigma)) as approximation of Sigma^{-1/2}
+  For Sigma1 and Sigma2: all diagonal entries = 1
+  So diag approx = Identity → Z = Xi - mu → NO standardisation
+  This is why v3 showed same results as before for Sigma1, Sigma2
 
-  At p=1000: diagonal approximation of Sigma^{-1/2} used
-  diag(Sigma)^{-1/2} accounts for variable-wise scaling
-  Full Sigma^{-1/2} used when p is small (e.g. p=4)
+  v4 uses FULL Sigma^{-1/2} via eigendecomposition:
+  Sigma = V D V'  →  Sigma^{-1/2} = V D^{-1/2} V'
+  Computed once per cell, not inside B loop
 
-READING THE TABLE:
-  SIZE rows (mu0): all methods should give ~0.05
-  POWER rows (mu1, mu2): higher = better at detecting signal
-  New-CQ gap: how much more power New has over CQ
-  JMVA-PD >> CQ: weighted sign beats CQ by >0.03
-  JMVA-PD ~  CQ: weighted sign and CQ are similar
+HOW WEIGHTS NOW WORK:
+  Z_i  = Sigma^{-1/2}(Xi - mu_hat)  [standardised — for weights]
+  S_i  = (Xi - mu_hat)/||Xi - mu_hat||  [centred sign — original space]
+  W_i  = f(||Z_i||)  [depth weight from standardised norm]
+  R_i  = S_i * W_i   [weighted sign]
+  T_W  = sum_{i} sum_{j<i} Ri'Rj  [U-statistic]
 
-EXPECTED PATTERNS (after correction):
-  Normal: New ~ CQ ~ JMVA-PD ~ JMVA-HSD
-  t3:     New >> CQ  and  JMVA-PD > CQ
-  Mix:    New > CQ   and  JMVA-PD > CQ
-  Size:   all methods ~0.05 for mu0 rows
+EXPECTED PATTERNS NOW:
+  SIZE (mu0):  JMVA-PD ~ 0.05  [properly calibrated]
+  POWER Normal: JMVA-PD ~ New  [no advantage, similar to JASA]
+  POWER t3:     JMVA-PD > CQ   [sign methods gain over CQ]
+  POWER Mix:    JMVA-PD > CQ   [heavy tail advantage]
+  JMVA-HSD:    stable values   [ecdf of ||Zi|| well-behaved]
 ")
 cat(paste(rep("=",86),collapse=""),"\n",sep="")
