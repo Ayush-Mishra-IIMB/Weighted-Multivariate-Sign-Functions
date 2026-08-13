@@ -1,20 +1,3 @@
-# ================================================================
-#  UNIFIED COMPARISON v4 — Professor's correction properly applied
-#  source("final_unified_v4.R")
-#
-#  PREVIOUS ATTEMPT (v3) WAS STILL WRONG:
-#    Used diag(diag(Sigma)) as approximation of Sigma^{-1/2}
-#    For Sigma1 and Sigma2 all diagonal entries = 1
-#    So diag approx = Identity → Z = Xi - mu → no change at all
-#
-#  CORRECT FIX (this version):
-#    Compute full Sigma^{-1/2} via eigendecomposition
-#    Sigma = V D V'  →  Sigma^{-1/2} = V D^{-1/2} V'
-#    Then Z_i = Sigma^{-1/2} (Xi - mu)
-#
-#  At p=1000: eigendecomposition is computed ONCE per cell
-#  (not inside the B loop) — affordable
-#
 #  SOURCE: JMVA paper Section 2, end of page 3
 #    "W(X, F) = W(Z, FZ) where Z = Sigma^{-1/2}(X - mu)"
 # ================================================================
