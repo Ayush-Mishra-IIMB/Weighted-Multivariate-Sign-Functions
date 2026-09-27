@@ -1,0 +1,17 @@
+#  Meeting with Prof. Subho
+1. Working on kernel function.
+2. Tune the parameter gamma and check the power and size.
+3. Figure out the IS topic and follow AI stats.
+
+
+# To Do & progress
+1. Kernel test, permutation test , gamma tuning kernel power and size
+2. Read the following: Check the sources and read
+  a) kernels
+  b)Reproducing kernel spaces 
+  c) Reproducing kernel hilbert spaces RKHS
+  d) permutation test.
+3. Finalize the coding part and push on github.
+4. Make the markdown file of results.
+
+
