@@ -49,14 +49,14 @@ $$Y = AX \qquad (n \times p, \text{ matrix product})$$
 
 **Kernel.** A Gaussian (RBF) kernel is applied to the rows of $Y$,
 with bandwidth set by the **median heuristic**:
-
+\{
 $$K(Y_i, Y_j) = \exp\left(-\frac{\|Y_i - Y_j\|^2}{2\sigma_K^2}\right),
-\qquad \sigma_K^2 = \text{median}\left(\{\|Y_i - Y_j\|^2\}_{i<j}\right)$$
+\qquad \sigma_K^2 = \text{median}\left(\{\|Y_i - Y_j\|^2\}_{i<j}\right)$$ \}
 
 **Test statistic.** The kernel U-statistic averages the kernel over
 all off-diagonal pairs:
-
-$$T_n^{\text{Kernel}} = \frac{1}{\binom{n}{2}} \sum_{i<j} K(Y_i, Y_j)$$
+\{
+$$T_n^{\text{Kernel}} = \frac{1}{\binom{n}{2}} \sum_{i<j} K(Y_i, Y_j)$$ \}
 
 This mirrors the pairwise U-statistic structure used by the JASA and
 JMVA statistics, but replaces the spatial-sign inner product with a
@@ -76,9 +76,9 @@ in this construction, significance is assessed via permutation:
    AX_{\text{perm}}$, and recompute $T_n^{\text{perm}}$.
 3. Compute the p-value using the standard, bias-corrected permutation
    formula:
-
+\{
 $$\hat{p} = \frac{1 + \sum_{k=1}^{n_{\text{perm}}} \mathbb{1}\{T_n^{(k)} \geq T_n^{\text{obs}}\}}{n_{\text{perm}} + 1}$$
-
+\}
 The `+1` correction in both numerator and denominator avoids
 returning an exact-zero p-value, which is otherwise possible when the
 observed statistic is more extreme than every permutation draw.
