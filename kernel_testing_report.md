@@ -146,6 +146,57 @@ larger multipliers: $\{10, 20, 50, 200\}$, giving a 9-point gamma
 grid and $3 \times 3 \times 9 = 81$ total cells (same $B=200$,
 `n_perm=150`).
 
+
+## 8. Full Results Tables (Extended Gamma Sweep)
+
+Rejection rate at the 0.05 level for each covariance structure and bandwidth multiplier.
+The multiplier scales the median-heuristic bandwidth, so **×1 is the original pilot setting**.
+Setting: n = 20, p = 1000, Normal, B = 200, n_perm = 150.
+
+### 8.1 Empirical Size (μ₀)
+
+| Covariance | ×0.25 | ×0.5 | ×1 | ×2 | ×4 | ×10 | ×20 | ×50 | ×200 | Range |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Σ₁ | 0.030 | 0.045 | 0.040 | 0.055 | 0.065 | 0.040 | 0.030 | 0.035 | 0.035 | 0.035 |
+| Σ₂ | 0.075 | 0.040 | 0.030 | 0.040 | 0.030 | 0.055 | 0.050 | 0.055 | 0.045 | 0.045 |
+| Σ₃ | 0.050 | 0.070 | 0.055 | 0.030 | 0.050 | 0.060 | 0.060 | 0.040 | 0.040 | 0.040 |
+
+### 8.2 Empirical Power (μ₁, dense shift)
+
+| Covariance | ×0.25 | ×0.5 | ×1 | ×2 | ×4 | ×10 | ×20 | ×50 | ×200 | Range |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Σ₁ | 0.030 | 0.050 | 0.045 | 0.040 | 0.035 | 0.040 | 0.050 | 0.040 | 0.030 | 0.020 |
+| Σ₂ | 0.055 | 0.065 | 0.045 | 0.040 | 0.045 | 0.035 | 0.060 | 0.040 | 0.050 | 0.030 |
+| Σ₃ | 0.050 | 0.030 | 0.035 | 0.040 | 0.060 | 0.010 | 0.040 | 0.025 | 0.040 | 0.050 |
+
+### 8.3 Empirical Power (μ₂, mixed-sign block shift)
+
+| Covariance | ×0.25 | ×0.5 | ×1 | ×2 | ×4 | ×10 | ×20 | ×50 | ×200 | Range |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Σ₁ | 0.050 | 0.055 | 0.045 | 0.065 | 0.035 | 0.060 | 0.065 | 0.040 | 0.050 | 0.030 |
+| Σ₂ | 0.050 | 0.045 | 0.040 | 0.045 | 0.025 | 0.050 | 0.065 | 0.040 | 0.045 | 0.040 |
+| Σ₃ | 0.055 | 0.050 | 0.040 | 0.075 | 0.040 | 0.060 | 0.030 | 0.050 | 0.040 | 0.045 |
+
+### 8.4 Summary Across the Grid
+
+| Quantity | Value |
+|---|---|
+| Size range across all cells | 0.025–0.075 |
+| Power range across all cells (μ₁ and μ₂) | 0.010–0.075 |
+| Highest size in any cell | 0.075 (Σ₂, ×0.25) |
+| Highest power in any cell | 0.075 (Σ₃, μ₂, ×2) |
+
+**Reading the tables.** With B = 200 and a true rejection rate of 0.05, the Monte Carlo standard
+error is about 0.015. The expected spread (max − min) of nine independent noise draws is
+roughly 3 standard errors, or about 0.045. The observed ranges (0.020–0.050) match what noise
+alone would produce. The power tables (8.2, 8.3) are also indistinguishable from the size table (8.1).
+No covariance structure, mean configuration, or bandwidth multiplier shows a rejection rate above
+the null level.
+
+> **Note:** Section 5 reports the first 5-point sweep. Cell values differ slightly from the
+> ×0.25–×4 columns above (e.g. Σ₁, μ₁, ×0.25: 0.040 there vs. 0.030 here). The two runs share a
+> seed, but the longer grid changes the random-number stream after the first cell. The
+> differences are Monte Carlo noise and do not change the conclusion.
 ### Result
 
 The extended range did not change the conclusion:
