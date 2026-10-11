@@ -242,7 +242,80 @@ this restores detectable power. This is the current priority, ahead
 of any further kernel or bandwidth tuning.
 
 ---
+## 8. Fixed-A vs Fresh-A Diagnostic
 
+### 8.1 Motivation
+
+Gamma (bandwidth) was ruled out as the cause of Kernel_Tn's flat power across
+two sweeps (a 45-cell grid over gamma multipliers 0.25–4×, then an 81-cell
+extension up to 200×). The leading remaining hypothesis was that the
+transformation `Y = AX`, where `A` is an `n×n` i.i.d. `N(0,1)` matrix **redrawn
+fresh on every replication**, randomizes away the mean-shift signal in `X`
+before the kernel ever sees it — since a new random linear mixing is applied
+independently each time, rather than conditioning on one realized `A` the way
+a real analysis would.
+
+This was tested directly by comparing two regimes, holding everything else
+identical (gamma_mult = 1, the calibrated median-heuristic setting; n=20,
+p=1000, Normal; B=300, N_PERM=200):
+
+- **Fresh-A** (original behavior): `A` drawn inside the permutation routine,
+  i.e. once per replication.
+- **Fixed-A** (diagnostic): `A` drawn **once per (Σ, μ) cell**, before the
+  B-loop, and reused across all B replications in that cell.
+
+### 8.2 Results
+
+| Σ | μ | Rejection rate (Fresh-A) | Rejection rate (Fixed-A) | Diff (Fixed − Fresh) | Type |
+|---|---|---|---|---|---|
+| Σ1 | μ0 | 0.023 | 0.057 | +0.033 | Size |
+| Σ1 | μ1 | 0.057 | 0.023 | −0.033 | Power |
+| Σ1 | μ2 | 0.057 | 0.050 | −0.007 | Power |
+| Σ2 | μ0 | 0.047 | 0.063 | +0.017 | Size |
+| Σ2 | μ1 | 0.053 | 0.057 | +0.003 | Power |
+| Σ2 | μ2 | 0.037 | 0.023 | −0.013 | Power |
+| Σ3 | μ0 | 0.050 | 0.037 | −0.013 | Size |
+| Σ3 | μ1 | 0.050 | 0.057 | +0.007 | Power |
+| Σ3 | μ2 | 0.067 | 0.067 | +0.000 | Power |
+
+### 8.3 Interpretation
+
+The fixed-A regime does **not** restore power. Across all six power cells
+(μ1, μ2 under Σ1–Σ3), the difference between fixed-A and fresh-A ranges only
+from −0.033 to +0.007 — small, inconsistent in sign, and in two cells
+(Σ1-μ1, Σ2-μ2) fixed-A is actually *lower* than fresh-A. Every power-row
+rejection rate under both regimes falls in the 0.02–0.07 band, which is
+statistically indistinguishable from the 0.02–0.06 band seen on the size
+rows (μ0) at the same B. No cell shows the separation from the null that
+real power would produce.
+
+**The per-replication A-redraw hypothesis is therefore rejected.** Fixing A
+is not the missing piece.
+
+### 8.4 Where this leaves the investigation
+
+With both gamma (bandwidth) and the A-redraw mechanism now ruled out, the
+flat-power finding must trace to one of:
+
+1. **The kernel statistic itself** — an RBF kernel built on a median-heuristic
+   bandwidth may simply be insensitive to a diffuse, dense mean shift spread
+   across p=1000 dimensions after linear mixing via `A`, regardless of
+   whether `A` is fixed or redrawn.
+2. **How `Y = AX` interacts with the permutation null** — permuting rows of
+   `X` (and recomputing `Y = AX_perm`) may preserve more of the relevant
+   structure under the null than intended, flattening the contrast between
+   observed and permuted statistics.
+3. **A more fundamental power limitation** of kernel U-statistics relative to
+   spatial-sign-based tests (JASA/CQ/JMVA) in this high-dimensional,
+   small-n regime.
+
+**Proposed next steps:**
+- Run the kernel test directly on `X` (no `A` transform at all) to isolate
+  whether `A` itself — fixed or not — is responsible, or whether the kernel/
+  permutation mechanism is the bottleneck even without any linear mixing.
+- Inspect the raw `Tn_obs` values against their permutation null distributions
+  under μ1/μ2 directly (not just rejection rates), to see whether the
+  statistic shifts at all, even if not enough to cross the 0.05 threshold.
 ## References
 
 Simulation code and the parallel JASA/CQ/JMVA comparison referenced
