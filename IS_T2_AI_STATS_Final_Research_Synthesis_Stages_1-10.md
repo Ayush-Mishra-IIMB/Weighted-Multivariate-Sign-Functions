@@ -846,3 +846,359 @@ These descriptive and exploratory analyses complement the main transport-inferen
 - [ ] The `evaluation_status` discrepancy is investigated before publication.
 - [ ] Original pilot data are preserved.
 - [ ] No new LLM calls were made in Stages 2–10.
+
+
+## 1. 
+
+This log starts at Stage 12 and continues through the full-scale Direction B pairwise-preference evaluation and its offline inference. The project has two distinct analyses:
+
+- **Direction A — correctness-based inference:** model accuracy on benchmark and target samples, including paired comparisons, standardization, and sensitivity to unscored responses.
+- **Direction B — judge-based pairwise preference:** an independent LLM judge compares two models' answers to the same question and chooses A, B, or a tie.
+
+These outcomes must not be conflated. Judge preference is not gold-answer accuracy, and neither is by itself a universal measure of model quality.
+
+## 2. Models and data
+
+- DeepSeek: `deepseek-ai/DeepSeek-V4-Pro-0813`
+- GPT-OSS: `openai/gpt-oss-120b`
+- Direction B judge: `zai-org/GLM-5.3`
+- Dataset: GSM8K mathematical word problems
+- Direction B prompt version: `direction_b_gsm8k_v1`
+
+The judge rubric covered correctness, validity of reasoning, completeness, and clarity; verbosity was not rewarded; ties were allowed. Outputs included preference, correctness labels, reasoning labels, confidence, and rationale. The two candidate answers were matched on question ID. Answer identities were randomized as A/B during judging and decoded afterward with a separate private key.
+
+Existing outputs were reused for offline analysis. The inference script did not call any LLM API. Private mapping files should not be published with public research artifacts.
+
+# Part I — Stage 12 corrected correctness analysis
+
+## 3. Objective
+
+Stage 12 continued the correctness-based comparison of DeepSeek and GPT-OSS using matched GSM8K questions. The corrected analysis examined benchmark and target differences, standardized differences, and sensitivity to assumptions about unscored responses.
+
+## 4. Stage 12 outputs
+
+Output directory: `analysis_outputs/gsm8k_pairwise/stage12_corrected/`
+
+| Reference comparison | DeepSeek − GPT-OSS |
+|---|---:|
+| Benchmark | +2.127 percentage points |
+| Target | +2.131 percentage points |
+| Standardized result 1 | +2.391 percentage points |
+| Standardized result 2 | +2.378 percentage points |
+
+These are reference point differences from the corrected Stage 12 analysis. They do not, by themselves, establish statistical significance.
+
+### Sensitivity analysis
+
+- Zero was included in 12 of 36 expanded sensitivity scenarios.
+- Worst-case bounds included zero.
+
+### Interpretation
+
+The reference point estimates were positive and similar across the reported comparisons, favoring DeepSeek descriptively. However, the sensitivity results show that the conclusion is not invariant to every scenario or assumption. The defensible interpretation is that the reference estimates favor DeepSeek while robustness depends on assumptions. Exact scenario-level estimates and interval endpoints are not reproduced here because they are not available in the consolidated result excerpt; no missing numbers are inferred.
+
+# Part II — Direction B pairwise preference evaluation
+
+## 5. Research questions
+
+1. How often does the judge prefer either answer versus returning a tie?
+2. Among decisive judgments, is the winner split balanced?
+3. When exactly one model answer is gold-correct, does the judge prefer the correct answer?
+4. Are mapped outcomes stable when answer order is reversed?
+
+These questions concern the judge's behavior under a specified protocol, not a direct estimate of model accuracy.
+
+## 6. Full-scale sample design
+
+The sample contains 1,500 unique matched questions, selected with seed `20261031`:
+
+| Sample type | Questions |
+|---|---:|
+| Benchmark | 1,200 |
+| Target | 300 |
+| **Total** | **1,500** |
+
+Primary input artifacts in `analysis_outputs/gsm8k_direction_b/`:
+
+- `direction_b_1500_pair_sample.csv` — question, gold answer, model responses, and saved correctness indicators
+- `judge_input_1500.csv` — judge-facing input
+- `judge_key_private_1500.csv` — private A/B identity and correctness mapping
+- `judge_results_glm53_1500.jsonl` — saved judge outputs
+- `judge_run_log_glm53_1500.json` — run metadata and usage log
+
+## 7. Full-scale judging run
+
+Runner: `scripts/24_gsm8k_direction_b_run_judge_1500.py`
+
+Reported run summary:
+
+- 1,500 primary judgments
+- 150 reversed-order judgments
+- 1,650 unique run IDs
+- Zero non-success records
+- Input tokens: 902,245
+- Output tokens: 122,437
+- Total tokens: 1,024,682
+- Estimated cost: USD 1.8019
+
+These are the completed run's reported counts. Later inference used saved results and did not make API calls.
+
+## 8. Mapping and audit
+
+Mapping script: `scripts/25_gsm8k_direction_b_analyze_judgments.py`
+
+Outputs:
+
+- `direction_b_primary_judgments_mapped.csv`
+- `direction_b_reversed_order_mapped.csv`
+- `direction_b_order_consistency.csv`
+
+The initial mapping attempt did not extract a nested judge result because the parser did not inspect the `judge_result` key. The parser was patched to inspect that key, after which the saved judgments mapped successfully. This was a parsing fix, not a new judging run.
+
+# Part III — Primary preference results
+
+## 9. Overall results
+
+| Primary judge outcome | Count | Percentage |
+|---|---:|---:|
+| DeepSeek preferred | 64 | 4.27% |
+| GPT-OSS preferred | 14 | 0.93% |
+| Tie | 1,422 | 94.80% |
+| **Total** | **1,500** | **100%** |
+
+There were 78 decisive judgments (5.20% of all comparisons). Among decisive judgments, DeepSeek received 64/78 = **82.05%** and GPT-OSS 14/78 = **17.95%**.
+
+The 82.05% is conditional on the judge making a non-tie choice; it is not DeepSeek's share of all comparisons. The tie rate is a central result, not a nuisance to discard.
+
+## 10. Benchmark and target breakdown
+
+### Benchmark (n = 1,200)
+
+| Outcome | Count | Percentage |
+|---|---:|---:|
+| DeepSeek preferred | 57 | 4.75% |
+| GPT-OSS preferred | 12 | 1.00% |
+| Tie | 1,131 | 94.25% |
+
+There were 69 decisive benchmark judgments. DeepSeek received 57/69 = **82.61%** of those decisive preferences.
+
+### Target (n = 300)
+
+| Outcome | Count | Percentage |
+|---|---:|---:|
+| DeepSeek preferred | 7 | 2.33% |
+| GPT-OSS preferred | 2 | 0.67% |
+| Tie | 291 | 97.00% |
+
+There were only 9 decisive target judgments. DeepSeek received 7/9 = **77.78%** of those decisive preferences.
+
+### Interpretation
+
+Decisive preferences descriptively favored DeepSeek in both samples, but the target estimate is based on only nine decisive judgments and is highly uncertain. These observed proportions do not establish a benchmark-versus-target difference or identify a causal effect of distribution shift.
+
+## 11. Exact binomial test
+
+The offline inference script tested the 78 decisive judgments against a 50:50 winner split:
+
+- Decisive judgments: 78
+- DeepSeek wins: 64
+- GPT-OSS wins: 14
+- Exact two-sided p-value: **8.58218 × 10⁻⁹**
+
+Under the binomial model and its assumptions, the decisive winner split is inconsistent with 50:50. The test is conditional on the judge not returning a tie. It does not test equality of model accuracy and does not validate the judge as an unbiased measure of human preference. For reporting, show the p-value together with the 94.8% tie rate and absolute counts.
+
+# Part IV — Gold correctness and alignment
+
+## 12. Correctness parsing issue and fix
+
+The first run of `scripts/26_gsm8k_direction_b_inference.py` reported all 1,500 gold-correctness labels missing. Inspection showed that saved correctness values were numeric representations such as `1.0` and `0.0`, but the parser only recognized string values `"1"` and `"0"`.
+
+The boolean conversion function was corrected to recognize `true`, `1`, `1.0`, `yes`, `correct` as true, and `false`, `0`, `0.0`, `no`, `incorrect` as false. The corrected run parsed the saved labels. This changed parsing only; it did not change model responses, gold answers, judge outputs, or sample data.
+
+## 13. Gold-correctness states
+
+| Gold correctness status | Pairs | Percentage |
+|---|---:|---:|
+| Both correct | 1,472 | 98.13% |
+| Neither correct | 10 | 0.67% |
+| DeepSeek only correct | 12 | 0.80% |
+| GPT-OSS only correct | 6 | 0.40% |
+| **Total** | **1,500** | **100%** |
+
+Exactly one answer was correct in 18 pairs (1.2%). This small discordant subset limits the precision of correctness-alignment analysis. These are saved gold-correctness indicators, not the judge's own correctness labels.
+
+## 14. Judge alignment among exactly-one-correct pairs
+
+| Judge outcome relative to gold correctness | Count | Percentage of 18 |
+|---|---:|---:|
+| Aligned — preferred the correct answer | 15 | 83.33% |
+| Tie | 1 | 5.56% |
+| Misaligned — preferred the incorrect answer | 2 | 11.11% |
+| **Total** | **18** | **100%** |
+
+The judge preferred the gold-correct answer in 15 of 18 discordant pairs. This is a descriptive, small-sample diagnostic and is not enough to claim strong general judge reliability. A few additional cases could materially change the proportions. It says nothing definitive about judge behavior when both answers are correct or both are incorrect.
+
+# Part V — Reversed-order robustness
+
+## 15. Results
+
+A subset of 150 pairs was judged again with answer order reversed:
+
+- Reversed-order pairs: 150
+- Same mapped outcome, including ties: **148/150 = 98.67%**
+- Decisive in both orderings: 4 pairs
+- Same winner among those four: 4/4
+
+### Interpretation
+
+Mapped outcomes were stable for 148 of 150 repeated pairs, but agreement was dominated by ties. Only four pairs were decisive in both orderings, so the evidence about order robustness when a winner is selected is very limited. This does not justify claiming that order bias is absent. Repeated judgments should not be added to the primary n = 1,500 denominator because they are repeated evaluations of a subset, not new questions.
+
+# Part VI — Scripts, artifacts, and reproducibility
+
+## 16. Inference script
+
+Script: `scripts/26_gsm8k_direction_b_inference.py`
+
+Inputs:
+
+- `analysis_outputs/gsm8k_direction_b/judge_results_glm53_1500.jsonl`
+- `analysis_outputs/gsm8k_direction_b/judge_key_private_1500.csv`
+- `analysis_outputs/gsm8k_direction_b/direction_b_1500_pair_sample.csv`
+
+Functions performed by the script:
+
+- Map primary judge outputs to question IDs and model identities
+- Summarize overall, benchmark, and target preference outcomes
+- Calculate Wilson confidence intervals for proportions
+- Perform an exact two-sided binomial test of decisive wins
+- Compare benchmark and target decisive-winner composition using Fisher's exact test
+- Compare benchmark and target tie/decisive rates using Fisher's exact test
+- Assess preference alignment for pairs where exactly one answer is gold-correct
+- Save a summary CSV and Markdown research log
+
+Outputs:
+
+- `analysis_outputs/gsm8k_direction_b/direction_b_inference_summary.csv`
+- `analysis_outputs/gsm8k_direction_b/gsm8k_direction_b_research_log.md`
+
+The terminal output confirmed 1,500 mapped primary judgments, 78 decisive outcomes (64 DeepSeek, 14 GPT-OSS), the exact p-value, the four correctness-state counts, and alignment counts of 15/1/2. It confirmed both files were saved and that no API calls were made. Exact Wilson interval and Fisher-test values were not included in the shared terminal excerpt; retrieve them from the saved summary CSV rather than guessing.
+
+## 17. Reproduction commands
+
+From the project root:
+
+```bash
+python scripts/25_gsm8k_direction_b_analyze_judgments.py
+python scripts/26_gsm8k_direction_b_inference.py
+```
+
+These commands map and analyze saved results offline. Do not rerun `scripts/24_gsm8k_direction_b_run_judge_1500.py` just to regenerate summary statistics; the saved JSONL and CSV files suffice.
+
+## 18. Artifact ledger
+
+| Component | Artifact | Purpose |
+|---|---|---|
+| Stage 12 | `analysis_outputs/gsm8k_pairwise/stage12_corrected/` | Corrected correctness and sensitivity outputs |
+| Direction B sample | `direction_b_1500_pair_sample.csv` | Paired responses and gold correctness |
+| Judge input | `judge_input_1500.csv` | Blinded judge inputs |
+| Private mapping | `judge_key_private_1500.csv` | A/B model identity and correctness key |
+| Raw judge results | `judge_results_glm53_1500.jsonl` | Saved primary/reversed judgments |
+| Run log | `judge_run_log_glm53_1500.json` | Usage and run metadata |
+| Mapped primary | `direction_b_primary_judgments_mapped.csv` | Decoded primary outcomes |
+| Mapped reversed | `direction_b_reversed_order_mapped.csv` | Decoded reversed-order outcomes |
+| Order consistency | `direction_b_order_consistency.csv` | Reversal agreement |
+| Inference summary | `direction_b_inference_summary.csv` | CI and test summaries |
+| Generated log | `gsm8k_direction_b_research_log.md` | Direction B component log |
+
+Direction B files are in `analysis_outputs/gsm8k_direction_b/`, except the Stage 12 folder.
+
+# Part VII — Assumptions and interpretation boundaries
+
+## 19. Estimands
+
+The main Direction B estimands are:
+
+1. Overall proportions of DeepSeek wins, GPT-OSS wins, and ties under this pair-sampling and judge protocol.
+2. Conditional probability that DeepSeek is preferred given a decisive judgment.
+3. The same outcome proportions within benchmark and target samples.
+4. Correctness alignment among pairs where exactly one answer is gold-correct.
+5. Mapped-outcome agreement between original and reversed answer ordering in the 150 repeated pairs.
+
+These are sample- and protocol-specific, not universal model properties.
+
+## 20. Assumptions and limitations
+
+- Inference beyond the sampled questions depends on the sample design and target population definition.
+- Model outcomes are paired because both models answer the same question; analyses should preserve this dependence.
+- GLM-5.3 is an automated judge, not a human gold-standard preference panel.
+- The 94.8% tie rate leaves only 78 decisive comparisons for the overall conditional-winner test.
+- The target subset has only nine decisive judgments.
+- Correctness alignment has only 18 discordant-correctness pairs.
+- Reversal agreement is tie-dominated; only four pairs were decisive in both orderings.
+- Benchmark/target differences do not, by themselves, identify a causal effect of distribution shift.
+- Judge preference must not be substituted for gold-answer accuracy.
+- Secondary benchmark-target tests should be called exploratory unless a testing plan was specified in advance.
+- Direction A missing/unscored responses are a separate issue and must be handled in the correctness analysis rather than combined silently with Direction B outcomes.
+
+## 21. Relationship to the wider 5,000-question correctness evaluation
+
+The wider GSM8K correctness project used 4,000 benchmark questions and 1,000 target questions, sampled without overlap. Previously reported scored/unscored counts were:
+
+| Sample/model | Scored | Unscored |
+|---|---:|---:|
+| Benchmark DeepSeek | 3,803 | 197 |
+| Benchmark GPT-OSS | 3,992 | 8 |
+| Target DeepSeek | 957 | 43 |
+| Target GPT-OSS | 997 | 3 |
+
+Previously reported accuracy among scored responses:
+
+| Sample/model | Accuracy among scored |
+|---|---:|
+| Benchmark DeepSeek | 0.983697 |
+| Benchmark GPT-OSS | 0.962425 |
+| Target DeepSeek | 0.985371 |
+| Target GPT-OSS | 0.963892 |
+
+These belong to Direction A, not the 1,500-pair Direction B analysis. Keep them in separate tables and explicitly state that the accuracy figures are among scored answers; missingness handling remains important.
+
+# Part VIII — Conclusions and next steps
+
+## 22. Conclusions supported by the shared results
+
+1. Stage 12 corrected reference differences were positive: +2.127 pp benchmark, +2.131 pp target, and +2.391/+2.378 pp for the two standardized results. Sensitivity cautions against claiming robustness across all assumptions: zero was included in 12/36 expanded scenarios and in worst-case bounds.
+2. Direction B full-scale judging completed with 1,500 primary pairs and 150 reversed-order repeats; the run log reported zero non-success records.
+3. Ties dominate: 1,422/1,500 primary comparisons (94.8%).
+4. Among 78 decisive judgments, DeepSeek won 64 (82.05%); the exact two-sided binomial p-value was 8.58218 × 10⁻⁹ under the specified 50:50 decisive-win null.
+5. The target decisive comparison is weakly informed: 7 DeepSeek wins versus 2 GPT-OSS wins among nine decisive outcomes.
+6. Only 18 pairs had exactly one gold-correct answer; the judge aligned in 15, tied in one, and misaligned in two.
+7. Reversed-order outcomes agreed in 148/150 cases, but only four were decisive in both orderings.
+8. Pairwise preference and gold-answer accuracy are distinct outcomes and must remain separate in interpretation.
+
+## 23. Next steps
+
+1. Preserve raw judge outputs and the private key unchanged.
+2. Inspect `direction_b_inference_summary.csv` for exact Wilson intervals and Fisher-test results; report those only after verifying their denominators and interpretation.
+3. Report unconditional preference proportions alongside conditional decisive-winner results.
+4. Treat correctness alignment as exploratory because n = 18.
+5. Treat order robustness as preliminary because only four pairs were decisive in both orderings.
+6. Present Stage 12 correctness inference and Direction B judge preference as distinct analyses in the paper.
+7. Do not make additional judge API calls solely to reproduce offline statistics.
+
+## Appendix — Compact result ledger
+
+| Item | Result |
+|---|---|
+| Stage 12 output directory | `analysis_outputs/gsm8k_pairwise/stage12_corrected/` |
+| Stage 12 differences | +2.127 pp; +2.131 pp; +2.391 pp; +2.378 pp |
+| Sensitivity | Zero in 12/36 scenarios; worst-case bounds include zero |
+| Direction B sample | 1,500 = 1,200 benchmark + 300 target |
+| Judge/prompt | `zai-org/GLM-5.3`; `direction_b_gsm8k_v1` |
+| Primary results | 64 DeepSeek / 14 GPT-OSS / 1,422 ties |
+| Decisive split | 82.05% DeepSeek / 17.95% GPT-OSS |
+| Exact binomial p-value | `8.58218e-09` |
+| Gold correctness | 1,472 both; 10 neither; 12 DeepSeek only; 6 GPT-OSS only |
+| Correctness alignment | 15 aligned / 1 tie / 2 misaligned, n = 18 |
+| Order reversal | 148/150 same outcome; 4/4 same winner among decisive in both |
+| API calls in inference script | None |
+
