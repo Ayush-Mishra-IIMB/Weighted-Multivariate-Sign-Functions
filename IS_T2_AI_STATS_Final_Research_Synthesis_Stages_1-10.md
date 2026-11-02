@@ -847,7 +847,51 @@ These descriptive and exploratory analyses complement the main transport-inferen
 - [ ] Original pilot data are preserved.
 - [ ] No new LLM calls were made in Stages 2–10.
 
+3. Models and evaluation output
+Model identifiers appearing in the evaluation results:
+- deepseek-ai/DeepSeek-V4-Pro-0813
+- openai/gpt-oss-120b
+Evaluation file:
 
+analysis_outputs/gsm8k_5000/gsm8k_5000_model_results.csv
+
+The reported columns include sample type, question ID, source split, question text and word count, length group, model, prompt version, gold and predicted answers, correctness, scoring/evaluation status, model response, finish reason, token counts, error, and timestamps.
+
+Other files reported in analysis_outputs/gsm8k_5000/:
+- gsm8k_5000_B.csv
+- gsm8k_5000_T.csv
+- gsm8k_5000_model_results.csv
+- gsm8k_5000_run_metadata.json
+- gsm8k_5000_sample_audit.json
+- gsm8k_5000_sample_research_log.txt
+- 09_estimator_bootstrap_monte_carlo.py
+The evaluation CSV was reported to contain 10,251 rows. The intended design would normally imply 10,000 model-question evaluations if both models were evaluated once on each of the 5,000 selected questions (5,000 × 2). The additional 251 rows must be reconciled before final analysis; possible explanations must be checked from the data rather than assumed.
+4. Preliminary accuracy results
+These are scored-response-only descriptive estimates from the current CSV summary. They are not yet final inferential results.
+Sample	Model	Rows in file	Scored	Correct	Accuracy among scored
+Benchmark	DeepSeek V4 Pro	4,197	3,863	3,785	97.9808%
+Benchmark	GPT-OSS 120B	4,008	3,998	3,845	96.1731%
+Target	DeepSeek V4 Pro	1,043	967	951	98.3454%
+Target	GPT-OSS 120B	1,003	999	961	96.1962%
+
+
+Accuracy by question-length group
+Sample	Model	Length group	Rows	Scored	Correct	Accuracy among scored
+Benchmark	DeepSeek V4 Pro	Long	1,845	1,630	1,593	97.7301%
+Benchmark	DeepSeek V4 Pro	Short	2,352	2,233	2,192	98.1639%
+Benchmark	GPT-OSS 120B	Long	1,725	1,718	1,640	95.4598%
+Benchmark	GPT-OSS 120B	Short	2,283	2,280	2,205	96.7105%
+Target	DeepSeek V4 Pro	Long	460	405	394	97.2840%
+Target	DeepSeek V4 Pro	Short	583	562	557	99.1103%
+Target	GPT-OSS 120B	Long	433	429	405	94.4056%
+Target	GPT-OSS 120B	Short	570	570	556	97.5439%
+
+
+Preliminary descriptive interpretation
+- Among responses that were scored, DeepSeek's observed accuracy is higher than GPT-OSS's in both the benchmark and target samples.
+- Both models have lower observed scored-only accuracy on long than short questions in the reported length breakdown.
+- These patterns are descriptive only. They do not establish statistically significant model superiority or a causal effect of question length.
+- The scored-only denominator may introduce bias if scoring failures are related to model, question difficulty, response format, or correctness. The missingness mechanism must be investigated.
 ## 1. 
 
 This log starts at Stage 12 and continues through the full-scale Direction B pairwise-preference evaluation and its offline inference. The project has two distinct analyses:
